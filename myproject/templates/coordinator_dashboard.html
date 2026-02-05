@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinator Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex bg-gray-100">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-[#170606] text-white min-h-screen flex flex-col justify-between">
+    <div>
+      <nav>
+        <ul>
+          <li class="px-6 py-3 hover:bg-indigo-700 cursor-pointer" onclick="showSection('dashboard')">Dashboard</li>
+          <li class="px-6 py-3 hover:bg-indigo-700 cursor-pointer" onclick="showSection('students')">Students</li>
+          <li class="px-6 py-3 hover:bg-indigo-700 cursor-pointer">
+            <a href="{{ url_for('application_form') }}">Application Form</a>
+          </li>
+          <li class="px-6 py-3 hover:bg-indigo-700 cursor-pointer" onclick="showSection('feedback')">Feedback</li>
+        </ul>
+      </nav>
+    </div>
+    <div class="px-6 py-3 hover:bg-indigo-700 cursor-pointer" onclick="showSection('profile')">Profile</div>
+  </aside>
+
+  <div class="flex-1 flex flex-col">
+    <!-- Top Navigation -->
+    <header class="bg-[#B20808] text-white px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold" id="headerTitle">Coordinator Dashboard</h1>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <button onclick="toggleNotificationDropdown()" class="relative">
+            🔔
+            <span id="notificationCount" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1 rounded-full">0</span>
+          </button>
+          <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+            <ul id="notificationListDropdown" class="p-2 list-disc list-inside text-gray-700"></ul>
+          </div>
+        </div>
+        <button onclick="window.location.href='{{ url_for('logout') }}'" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-6 overflow-y-auto">
+      <!-- Dashboard Section -->
+      <div id="dashboardSection">
+        <h2 class="text-xl font-bold mb-4">Dashboard Overview</h2>
+        <div class="grid grid-cols-2 gap-6 mb-6">
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="font-bold">Total Admissions</h3>
+            <p id="totalAdmissions" class="text-2xl mt-2">0</p>
+          </div>
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="font-bold">Notifications</h3>
+            <ul id="notificationList" class="mt-2 list-disc list-inside text-gray-700"></ul>
+          </div>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between max-w-xl">
+          <div class="flex flex-col">
+            <p><strong>Name:</strong> {{ coordinator_data['first_name'] }} {{ coordinator_data['last_name'] }}</p>
+            <p><strong>Email:</strong> {{ coordinator_data['email'] }}</p>
+            <p><strong>Phone:</strong> {{ coordinator_data['phone'] }}</p>
+            <p style="margin-top:6px;color:#666;font-size:13px"><strong>Department:</strong> {{ coordinator_data['work'] }}</p>
+          </div>
+          <div class="flex flex-col items-center">
+            <img src="{{ coordinator_data['photo'] or 'https://via.placeholder.com/100' }}" alt="Coordinator Photo" class="rounded-full w-24 h-24 object-cover">
+            <div style="font-size:13px;color:#666;margin-top:6px">Profile Photo</div>
+          </div>
+        </div>
+      </div>
+
+<!-- Students Section -->
+<div id="students" style="display:none;">
+  <h2 class="text-xl font-bold mb-4">My Students</h2>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <input type="date" id="startDate" class="px-4 py-2 border rounded-md">
+    <input type="date" id="endDate" class="px-4 py-2 border rounded-md">
+    <label class="flex items-center space-x-2">
+      <input type="checkbox" id="pieChartOption">
+      <span>Show Pie Chart by Department</span>
+    </label>
+    <button id="downloadExcelBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Download Excel</button>
+    <button id="downloadPdfBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Download PDF</button>
+  </div>
+
+  <input type="text" id="searchStudent" placeholder="Search by student name or application no" class="px-4 py-2 border rounded w-full mb-4" onkeyup="searchStudent()">
+
+  <div class="bg-white shadow rounded-lg overflow-auto">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+        <tr>
+          <th class="py-3 px-4">Application No</th>
+          <th class="py-3 px-4">Student Name</th>
+          <th class="py-3 px-4">Department</th>
+          <th class="py-3 px-4">Mobile</th>
+          <th class="py-3 px-4">Address</th>
+          <th class="py-3 px-4">Next College Visit</th>
+        </tr>
+      </thead>
+      <tbody id="studentTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+
+
+
+      <!-- Feedback Section -->
+      <div id="feedback" style="display:none;">
+        <h2 class="text-xl font-bold mb-4">Feedback</h2>
+        <div class="bg-white shadow rounded-lg p-6 max-w-lg mb-6">
+          <form id="feedbackForm" class="space-y-4">
+            <div>
+              <label class="block text-gray-700 mb-1">Application Number</label>
+              <select id="appNoInput" class="w-full px-4 py-2 border rounded-md" required></select>
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Feedback</label>
+              <textarea id="feedbackInput" placeholder="Enter feedback..." class="w-full px-4 py-2 border rounded-md" rows="4" required></textarea>
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Next College Visit Date</label>
+              <input type="date" id="visitDateInput" class="w-full px-4 py-2 border rounded-md">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                Save Feedback
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-4 max-w-2xl">
+          <table class="min-w-full">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+              <tr>
+                <th class="py-3 px-4">Application No</th>
+                <th class="py-3 px-4">Feedback</th>
+                <th class="py-3 px-4">Next Visit</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Profile Section -->
+      <div id="profile" style="display:none;">
+        <h2 class="text-xl font-bold mb-4">Profile</h2>
+        <div class="bg-white shadow rounded-lg p-8 max-w-lg">
+          <div class="flex flex-col items-center mb-6">
+            <img id="photoPreview" src="{{ coordinator_data['photo'] or 'https://via.placeholder.com/150' }}" class="rounded-full w-32 h-32 object-cover mb-2">
+            <label for="profilePhoto" class="cursor-pointer text-blue-600">Change Photo</label>
+            <input type="file" id="profilePhoto" class="hidden" accept="image/*">
+          </div>
+          <form id="profileForm" class="space-y-4">
+            <div>
+              <label class="block text-gray-700 mb-1">Name</label>
+              <input type="text" id="profileName" value="{{ coordinator_data['first_name'] }} {{ coordinator_data['last_name'] }}" class="w-full px-4 py-2 border rounded-md">
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Email</label>
+              <input type="email" id="profileEmail" value="{{ coordinator_data['email'] }}" readonly class="w-full px-4 py-2 border rounded-md bg-gray-100 cursor-not-allowed">
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Phone</label>
+              <input type="text" id="profilePhone" value="{{ coordinator_data['phone'] }}" class="w-full px-4 py-2 border rounded-md">
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Department</label>
+              <input type="text" id="profileDept" value="{{ coordinator_data['work'] }}" class="w-full px-4 py-2 border rounded-md">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save Profile</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+    let students = [];
+    let feedbacks = [];
+
+    function showSection(section){
+      const sections = ['dashboardSection','students','feedback','profile'];
+      sections.forEach(sec => document.getElementById(sec).style.display='none');
+      const sectionMap = {'dashboard':'dashboardSection','students':'students','feedback':'feedback','profile':'profile'};
+      document.getElementById(sectionMap[section]).style.display='block';
+    }
+
+    function toggleNotificationDropdown(){
+      document.getElementById("notificationDropdown").classList.toggle("hidden");
+    }
+
+    async function loadStudents(){
+      const res = await fetch('/get_coordinator_applications');
+      const data = await res.json();
+      students = data.applications || [];
+      populateFeedbackDropdown();
+      renderStudents();
+
+      // If no data, show message
+      if (!students || students.length === 0) {
+        const tbody = document.getElementById('studentTableBody');
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center text-gray-600">No data found</td></tr>`;
+      }
+
+      // highlight newly saved application (if coming from form)
+      const lastApp = sessionStorage.getItem('lastAppNumber');
+      if (lastApp) {
+        setTimeout(() => {
+          const rows = document.querySelectorAll('#studentTableBody tr');
+          rows.forEach(row => {
+            if (row.cells[0].textContent.trim() === String(lastApp).trim()) {
+              row.style.backgroundColor = '#FFFBCC';
+              row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          });
+          sessionStorage.removeItem('lastAppNumber');
+        }, 100);
+      }
+    }
+
+    function renderStudents(search=""){
+      const tbody = document.getElementById('studentTableBody');
+      tbody.innerHTML = "";
+      const filtered = (students || []).filter(s=>{
+        if(!s) return false;
+        const name = (s.student_name || "").toString().toLowerCase();
+        const app = (s.application_number || "").toString().toLowerCase();
+        const q = (search || "").toString().toLowerCase();
+        return name.includes(q) || app.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center text-gray-600">No data found</td></tr>`;
+      } else {
+        filtered.forEach(s=>{
+          tbody.innerHTML += `<tr class="border-b">
+            <td class="py-2 px-4">${s.application_number || ""}</td>
+            <td class="py-2 px-4">${s.student_name || ""}</td>
+            <td class="py-2 px-4">${s.preferred_branch || ""}</td>
+            <td class="py-2 px-4">${s.mobile || "-"}</td>
+            <td class="py-2 px-4">${s.address || "-"}</td>
+            <td class="py-2 px-4">${s.next_visit || "-"}</td>
+          </tr>`;
+        });
+      }
+      document.getElementById('totalAdmissions').innerText = (students || []).length;
+    }
+
+    function populateFeedbackDropdown(){
+      const select = document.getElementById('appNoInput');
+      select.innerHTML = "";
+      students.forEach(s=>{
+        const opt = document.createElement('option');
+        opt.value = s.application_number;
+        opt.textContent = `${s.application_number} - ${s.student_name}`;
+        select.appendChild(opt);
+      });
+    }
+
+    document.getElementById("feedbackForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+      const appNo = document.getElementById("appNoInput").value;
+      const feedbackText = document.getElementById("feedbackInput").value;
+      const visitDate = document.getElementById("visitDateInput").value;
+
+      if(!appNo || !feedbackText){ alert("Enter Application No and Feedback"); return; }
+
+      await fetch('/save_feedback', {
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({application_number: appNo, feedback: feedbackText, next_visit: visitDate})
+      });
+
+      const stu = students.find(s=>s.application_number===appNo);
+      if(stu){
+        stu.next_visit = visitDate || "---";
+        stu.feedback = feedbackText;
+      }
+      renderFeedback();
+      renderStudents();
+      this.reset();
+    });
+
+    function renderFeedback(){
+      const tbody = document.getElementById("feedbackTableBody");
+      tbody.innerHTML = "";
+      students.filter(s=>s.feedback).forEach(f=>{
+        tbody.innerHTML += `<tr class="border-b">
+          <td class="py-2 px-4">${f.application_number}</td>
+          <td class="py-2 px-4">${f.feedback}</td>
+          <td class="py-2 px-4">${f.next_visit || "---"}</td>
+        </tr>`;
+      });
+    }
+
+    window.onload = () => {
+      showSection('dashboard');
+      loadStudents();
+    };
+
+    // Date checks and download functionalities
+    async function checkData(start, end) {
+      const res = await fetch(`/check_data?start_date=${start}&end_date=${end}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data.count > 0;
+    }
+
+    document.getElementById("downloadExcelBtn").addEventListener("click", async function() {
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const chart = document.getElementById("pieChartOption").checked ? '1' : '0';
+
+      if(!startDate || !endDate){
+        alert("Please select start and end dates.");
+        return;
+      }
+
+      const hasData = await checkData(startDate, endDate);
+      if(!hasData){
+        alert("No data found for the selected dates.");
+        return;
+      }
+
+      window.location.href = `/download_excel?start_date=${startDate}&end_date=${endDate}&chart=${chart}`;
+    });
+
+    document.getElementById("downloadPdfBtn").addEventListener("click", async function() {
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      if(!startDate || !endDate){
+        alert("Please select start and end dates.");
+        return;
+      }
+
+      const hasData = await checkData(startDate, endDate);
+      if(!hasData){
+        alert("No data found for the selected dates.");
+        return;
+      }
+
+      window.location.href = `/download_pdf?start_date=${startDate}&end_date=${endDate}`;
+    });
+
+    // Add this function: fetch students optionally filtered by date
+    async function fetchStudents() {
+      const start = document.getElementById("startDate")?.value || "";
+      const end = document.getElementById("endDate")?.value || "";
+      // If both dates provided, you could call a server endpoint to filter by date.
+      // For now, just reload all students and let client-side handle display. Modify if you implement server filtering.
+      await loadStudents();
+      // If you want client-side date filtering, add code here to filter 'students' array by date_submitted.
+    }
+
+    // Guard attaching listeners (elements may not exist)
+    document.addEventListener('DOMContentLoaded', function() {
+      const startEl = document.getElementById("startDate");
+      const endEl = document.getElementById("endDate");
+      const downloadExcelBtn = document.getElementById("downloadExcelBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+      const searchInput = document.getElementById('searchStudent');
+
+      if (startEl) startEl.addEventListener("change", fetchStudents);
+      if (endEl) endEl.addEventListener("change", fetchStudents);
+      if (downloadExcelBtn) downloadExcelBtn.addEventListener("click", async function() {
+        const startDate = startEl?.value; const endDate = endEl?.value;
+        if(!startDate || !endDate){ alert("Please select start and end dates."); return; }
+        const hasData = await checkData(startDate, endDate);
+        if(!hasData){ alert("No data found for the selected dates."); return; }
+        const chart = document.getElementById("pieChartOption")?.checked ? '1' : '0';
+        window.location.href = `/download_excel?start_date=${startDate}&end_date=${endDate}&chart=${chart}`;
+      });
+      if (downloadPdfBtn) downloadPdfBtn.addEventListener("click", async function() {
+        const startDate = startEl?.value; const endDate = endEl?.value;
+        if(!startDate || !endDate){ alert("Please select start and end dates."); return; }
+        const hasData = await checkData(startDate, endDate);
+        if(!hasData){ alert("No data found for the selected dates."); return; }
+        window.location.href = `/download_pdf?start_date=${startDate}&end_date=${endDate}`;
+      });
+      if (searchInput) searchInput.addEventListener('input', searchStudents);
+    });
+
+    // As-you-type search with backend API
+    async function searchStudents() {
+        const searchTerm = document.getElementById('searchStudent').value.trim();
+        try {
+            const response = await fetch(`/search_students?term=${encodeURIComponent(searchTerm)}`);
+            const data = await response.json();
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+
+            const rows = (data.students || []);
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center text-gray-600">No data found</td></tr>`;
+                document.getElementById('totalAdmissions').innerText = 0;
+                return;
+            }
+
+            rows.forEach(student => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 px-4">${student.application_number || ''}</td>
+                        <td class="py-3 px-4">${student.student_name || ''}</td>
+                        <td class="py-3 px-4">${student.preferred_branch || ''}</td>
+                        <td class="py-3 px-4">${student.mobile || '-'}</td>
+                        <td class="py-3 px-4">${student.address || '-'}</td>
+                        <td class="py-3 px-4">${student.next_visit || '-'}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('totalAdmissions').innerText = rows.length;
+        } catch (error) {
+            console.error('Error searching students:', error);
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-4 text-center text-red-600">Error fetching data</td></tr>`;
+        }
+    }
+
+    // Attach search to input event
+    document.getElementById('searchStudent').addEventListener('input', searchStudents);
+</script>
+</body>
+</html>

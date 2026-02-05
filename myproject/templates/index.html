@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prathyusha Engineering College</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url("/static/homepage.jpg") no-repeat center center/cover;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .logo {
+      position: relative;
+      z-index: 1;
+      margin-top: 30px;
+    }
+
+    .logo img {
+      width: 220px;
+      height: auto;
+      border-radius: 50%;
+      animation: shrinkRotate 2s forwards;
+    }
+
+    .logo img.glow {
+      animation: shrinkRotate 2s forwards, fadeGlow 5s ease-in-out 2s forwards;
+    }
+
+    .buttons {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 50px;
+      margin-top: 60px;
+      animation: fadeUp 2s ease-in-out;
+    }
+
+    a.button {
+      display: inline-block;
+      background: none;
+      color: white;
+      font-size: 20px;
+      padding: 15px;
+      width: 200px;
+      text-align: center;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-decoration: none;
+    }
+
+    a.button:hover {
+      background: #0077aa;
+      transform: scale(1.1);
+    }
+
+    @keyframes shrinkRotate {
+      0% { transform: scale(1.5) rotate(0deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(50px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeGlow {
+      0% { box-shadow: 0 0 0px 0px yellow; }
+      20% { box-shadow: 0 0 40px 15px yellow; }
+      80% { box-shadow: 0 0 40px 15px yellow; }
+      100% { box-shadow: 0 0 0px 0px yellow; }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <div class="logo">
+    <img src="/static/hlogo.jpg" alt="College Logo" id="logo">
+  </div>
+
+  <div class="buttons">
+    <a href="/admin" class="button">ADMIN</a>
+    <a href="/coordinator" class="button">COORDINATOR</a>
+  </div>
+
+  <script>
+    const logo = document.getElementById("logo");
+    logo.addEventListener("animationend", () => {
+      logo.classList.add("glow");
+    });
+  </script>
+</body>
+</html>

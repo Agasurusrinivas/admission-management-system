@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard - PEC</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--accent:#a60000;--accent-dark:#7a0000}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f9}
+
+    /* Top navbar */
+    .navbar{
+      height:80px;
+      background:var(--accent); color:#fff; display:flex;align-items:center;
+      justify-content:space-between;padding:0 18px;box-sizing:border-box;
+    }
+    .navbar h1{
+      margin: 220px;
+      font-size:20px;
+      font-weight:bold;
+      white-space:normal;
+      overflow-wrap:break-word;
+      line-height:1.2;
+      flex:1 1 auto;
+    }
+    .navbar .right{display:flex;align-items:center;gap:12px}
+    .notification{font-size:20px;position:relative;cursor:pointer}
+    .notification::after{
+      content:"3"; position:absolute; top:-6px; right:-10px;
+      background:yellow;color:black;font-size:12px;padding:2px 6px;border-radius:50%;
+    }
+    .action-btn{background:var(--accent);color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .action-btn:hover{background:var(--accent-dark)}
+
+    /* Sidebar */
+    .sidebar{
+      position:fixed; left:0; top:0; bottom:0; width:220px; background:#222;color:#fff;
+      padding-top:80px; /* Match new navbar height */
+      box-sizing:border-box; z-index:10; display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .sidebar-top button{
+      display:block;width:100%;padding:14px 18px;border:none;background:none;color:inherit;text-align:left;
+      cursor:pointer;font-size:15px;border-left:4px solid transparent;box-sizing:border-box;
+    }
+    .sidebar-top button:hover{background:#333}
+    .sidebar-top button.active{background:var(--accent);border-left-color:transparent}
+
+    .sidebar-bottom{padding-bottom:12px;}
+    .sidebar-bottom button{width:100%;padding:12px 18px;border:none;background:none;color:#fff;text-align:left;font-size:15px;cursor:pointer;border-top:1px solid #444;}
+    .sidebar-bottom button:hover{background:#333}
+
+    /* Main content */
+    .main{
+      margin-left:220px;
+      margin-top:0; /* No margin-top since navbar is not fixed */
+      padding:18px;
+      box-sizing:border-box;
+    }
+
+    /* Admin info row */
+    .admin-info{
+      display:flex;align-items:center;justify-content:space-between;gap:20px;
+      background:#fff;padding:14px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.12);
+      margin-bottom:16px;
+    }
+    .admin-details p{margin:3px 0;font-size:15px}
+    .admin-photo{text-align:center}
+    .admin-photo img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent)}
+
+    /* Counters */
+    .counters{display:flex;gap:18px;margin-bottom:16px;flex-wrap:wrap}
+    .counter-card{flex:1;min-width:150px;background:#fff;padding:14px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.12);text-align:center}
+    .counter-card h3{margin:0;font-size:18px;color:#333}
+    .counter-card p{margin:4px 0 0;font-size:14px;color:#666}
+
+    /* Charts row */
+    .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+    .card{background:#fff;padding:14px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.12)}
+    .card h2{margin:0 0 8px 0;font-size:16px}
+    .chart-container{position:relative;width:100%;height:260px}
+    canvas{width:100%!important;height:100%!important;display:block}
+
+    /* pie tooltip (custom) */
+    .pie-tooltip{
+      position:absolute;display:none;pointer-events:none;background:#fff;border:1px solid #ddd;
+      padding:8px 10px;border-radius:8px;box-shadow:0 6px 14px rgba(0,0,0,0.12);font-size:13px;z-index:50;
+      white-space:nowrap;
+    }
+    .pie-tooltip::after{
+      content:"";position:absolute;left:-6px;top:50%;transform:translateY(-50%);border-style:solid;
+      border-width:6px;border-color:transparent #fff transparent transparent;
+      filter:drop-shadow(-1px 1px 0 rgba(0,0,0,0.06));
+    }
+
+    /* Data summary below charts */
+    .data-section{margin-top:16px;background:#fff;padding:14px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.12)}
+    .data-grids{display:flex;gap:18px;flex-wrap:wrap}
+    table{border-collapse:collapse;width:100%}
+    th,td{padding:8px;border:1px solid #e6e6e6;text-align:center;font-size:14px}
+    th{background:var(--accent);color:#fff;font-weight:600}
+
+    /* Form inputs */
+    .coordinator-inputs input, .coordinator-inputs select, .coordinator-inputs textarea{
+      display:block;width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;font-size:16px;
+    }
+    .coordinator-inputs button{margin-top:6px}
+
+    /* Coordinator Section */
+    #coordinatorSection{transition:0.3s;}
+    #searchCoordinator{transition:0.3s;box-shadow:0 2px 5px rgba(0,0,0,0.1);margin-bottom:12px;padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;}
+    #searchCoordinator:focus{outline:none;border:1px solid var(--accent);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+
+    /* Chat panel */
+    #chatPanel{position:fixed;top:80px;right:-350px;width:320px;height:400px;background:#fff;
+      border:1px solid #ddd; box-shadow:0 4px 12px rgba(0,0,0,0.2); border-radius:10px;
+      padding:14px; transition:right 0.4s ease; z-index:50; overflow-y:auto;}
+    #chatToggle{position:fixed; top:150px; right:0; background:var(--accent); color:#fff;
+      padding:10px 14px; border-radius:8px 0 0 8px; cursor:pointer; z-index:55;}
+
+    /* Modal */
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.3); display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal.show { display: flex; }
+    .modal-content { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);}
+
+    @media (max-width:1024px){ .charts-row{grid-template-columns:1fr} .navbar h1{font-size:16px} }
+
+    /* Notification styles */
+    #notifList li {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+      color: #333;
+      background: #fff;
+      font-size: 15px;
+    }
+    #notifList li:last-child {
+      border-bottom: none;
+    }
+    #notifList li:hover {
+      background: #f6f6f6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <button id="dashboardBtn" class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
+      <button id="coordinatorBtn" onclick="showSection('coordinator')">👨‍🏫 Coordinators</button>
+      <button id="feedbackBtn" onclick="showSection('feedback')">💬 Feedback Info</button>
+      <button id="viewBtn" onclick="showSection('view')">📑 View</button>
+    </div>
+    <div class="sidebar-bottom">
+      <button id="profileBtn" onclick="showSection('profile')">👤 Profile</button>
+    </div>
+  </div>
+
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <h1>Admin Dashboard - Prathyusha Engineering College</h1>
+    <div class="right">
+      <span class="notification" onclick="toggleNotifications()">🔔</span>
+      <button class="action-btn" onclick="window.location.href='{{ url_for('home') }}'">Logout</button>
+
+    </div>
+  </div>
+
+  <!-- Notification Popup -->
+  <div id="notifPopup" style="position:fixed; top:80px; right:10px; width:300px;background:#fff; border:1px solid #ddd; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.2);display:none; z-index:60; overflow:hidden;">
+    <h4 style="margin:0;padding:10px;background:var(--accent);color:#fff;border-radius:10px 10px 0 0;">Notifications</h4>
+    <ul id="notifList" style="list-style:none;margin:0;padding:10px;" type="disc">
+      <li>New student enrolled in CSE</li>
+      <li>Coordinator John Doe updated profile</li>
+      <li>Monthly report is ready</li>
+    </ul>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <!-- Dashboard Section -->
+    <div id="dashboardSection">
+      <div class="admin-info">
+        <div class="admin-details">
+          <p><strong>Name:</strong> <span id="dashboardName">John Smith</span></p>
+          <p><strong>Email:</strong> <span id="dashboardEmail">admin@example.com</span></p>
+          <p><strong>Phone:</strong> <span id="dashboardPhone">9876543210</span></p>
+          <p style="margin-top:6px;color:#666;font-size:13px">Role: <span id="dashboardRole">Administrator</span></p>
+        </div>
+        <div class="admin-photo">
+          <img id="dashboardPhoto" src="https://via.placeholder.com/150" alt="Admin Photo">
+          <div style="font-size:13px;color:#666;margin-top:6px">Profile</div>
+        </div>
+      </div>
+
+      <!-- Counters -->
+      <div class="counters">
+        <div class="counter-card"><h3 id="admissionsCount">0</h3><p>Total Admissions</p></div>
+        <div class="counter-card"><h3 id="enrollmentsCount">0</h3><p>Total Enrollments</p></div>
+      </div>
+
+      <div class="charts-row">
+        <!-- Admissions Bar Chart -->
+        <div class="card">
+          <h2>Admissions Overview</h2>
+          <label for="graphType" style="font-size:13px;color:#444">Select Graph:</label>
+          <select id="graphType" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc">
+            <option value="weekly" selected>Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          <div class="chart-container">
+            <canvas id="admissionsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="card">
+          <h2>Department-wise Enrollment</h2>
+          <label for="yearSelect" style="font-size:13px;color:#444">Select Academic Year:</label>
+          <select id="yearSelect" style="margin:6px 0;padding:6px;border-radius:6px;border:1px solid #ccc">
+            <option value="2023" selected>2023-2024</option>
+          </select>
+          <div class="chart-container" style="position:relative">
+            <canvas id="studentsPieChart"></canvas>
+            <div id="pieTooltip" class="pie-tooltip"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data summary -->
+      <div class="data-section">
+        <h2 style="margin:0 0 10px 0;font-size:16px">Data Summary</h2>
+        <div class="data-grids">
+          <div style="flex:1;min-width:260px">
+            <h3 style="margin:0 0 8px 0;font-size:14px">Admissions Data (current view)</h3>
+            <table id="admissionsDataTable"><thead><tr><th>Label</th><th>Value</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div style="flex:1;min-width:260px">
+            <h3 style="margin:0 0 8px 0;font-size:14px">Enrollments by Department</h3>
+            <table id="deptDataTable"><thead><tr><th>Department</th><th>Students</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coordinator Section -->
+    <div id="coordinatorSection" style="display:none;margin-top:14px">
+      <div class="card" style="margin-bottom:16px;">
+        <h2>Add Coordinator</h2>
+        <button class="action-btn" onclick="openAddCoordinatorModal()">Add New Coordinator</button>
+      </div>
+      <div class="card">
+        <h2>Coordinators</h2>
+        <div id="coordinatorGrid" style="display: flex; flex-wrap: wrap; gap: 18px;">
+          <!-- Coordinator cards will be inserted here by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Info Section -->
+    <div id="feedbackSection" style="display:none; margin-top:14px;">
+      <div class="card">
+        <h2>Feedback Info</h2>
+        <input type="text" id="feedbackSearch" placeholder="Search by Coordinator, Student, or App No..." style="width:100%;margin-bottom:14px;padding:8px;border-radius:6px;border:1px solid #ccc;">
+        <table id="feedbackTable" style="width:100%;margin-top:10px;">
+          <thead>
+            <tr>
+              <th>Application No</th>
+              <th>Student Name</th>
+              <th>Coordinator Name</th>
+              <th>Feedback</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Feedback rows will be rendered here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- View Section -->
+    <div id="viewSection" style="display:none; margin-top:14px;">
+      <div class="card">
+        <h2>Coordinator Work Data</h2>
+        <h3 style="margin-top:10px; color: var(--accent); display: flex; align-items: center;">
+          Today’s Data
+          <span id="todayDate" style="font-size:13px; color:#444; margin-left:12px;"></span>
+        </h3>
+        <table>
+          <tr><th>Coordinator</th><th>Application ID</th><th>Student Name</th></tr>
+          <tr><td>John Doe</td><td>APP1021</td><td>Alice</td></tr>
+          <tr><td>Jane Smith</td><td>APP1022</td><td>Bob</td></tr>
+        </table>
+        <h3 style="margin-top:20px; color: var(--accent); display: flex; align-items: center;">
+          Yesterday’s Data
+          <span id="yesterdayDate" style="font-size:13px; color:#444; margin-left:12px;"></span>
+        </h3>
+        <table>
+          <tr><th>Coordinator</th><th>Application ID</th><th>Student Name</th></tr>
+          <tr><td>John Doe</td><td>APP1018</td><td>Charlie</td></tr>
+          <tr><td>Jane Smith</td><td>APP1019</td><td>David</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profileSection" style="display:none; margin-top:14px">
+      <div class="card" style="background-color: #f9f9f9; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px;">
+        <h2 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px;">Admin Profile</h2>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+          <!-- Profile Photo -->
+          <div style="flex: 0 0 150px; text-align: center;">
+            <img id="profilePhotoPreview" src="https://via.placeholder.com/150" alt="Profile Photo" 
+                 style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; margin-bottom: 10px;">
+            <label for="profilePhotoInput" style="display:block; cursor:pointer; font-size: 14px; color:var(--accent);">Change Photo</label>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;">
+          </div>
+          <!-- Profile Info Form -->
+          <div style="flex: 1;">
+            <form id="adminProfileForm" style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileName" style="min-width:120px; font-weight:bold;">Name:</label>
+                <input type="text" id="profileName" placeholder="Full Name" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileEmail" style="min-width:120px; font-weight:bold;">Email:</label>
+                <input type="email" id="profileEmail" placeholder="Email Address" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profilePhone" style="min-width:120px; font-weight:bold;">Phone:</label>
+                <input type="tel" id="profilePhone" placeholder="Phone Number" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileDOB" style="min-width:120px; font-weight:bold;">Date of Birth:</label>
+                <input type="date" id="profileDOB" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileRole" style="min-width:120px; font-weight:bold;">Role:</label>
+                <input type="text" id="profileRole" placeholder="Role" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <!-- Address Section Start -->
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileAddress" style="min-width:120px; font-weight:bold;">Address:</label>
+                <input type="text" id="profileAddress" placeholder="Street, Area, etc." style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileCity" style="min-width:120px; font-weight:bold;">City:</label>
+                <input type="text" id="profileCity" placeholder="City" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileState" style="min-width:120px; font-weight:bold;">State:</label>
+                <input type="text" id="profileState" placeholder="State" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profilePincode" style="min-width:120px; font-weight:bold;">Pincode:</label>
+                <input type="text" id="profilePincode" placeholder="Pincode" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <label for="profileCountry" style="min-width:120px; font-weight:bold;">Country:</label>
+                <input type="text" id="profileCountry" placeholder="Country" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;">
+              </div>
+              <!-- Address Section End -->
+              <button type="submit" class="action-btn" style="margin-top:10px; width:150px;">Save Profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Coordinator Profile Modal -->
+  <div id="coordinatorProfileModal" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+      <div style="text-align:center;">
+        <img id="profileModalPhoto" src="https://via.placeholder.com/100" alt="Profile Photo" style="width:100px;height:100px;border-radius:50%;border:3px solid var(--accent);object-fit:cover;">
+        <h3 id="profileModalName" style="margin:10px 0 4px 0;"></h3>
+        <div id="profileModalDept" style="color:#a60000;font-size:15px;"></div>
+      </div>
+      <div style="margin-top:12px;">
+        <strong>Admissions Enrolled:</strong> <span id="profileModalAdmissions"></span>
+        <h4 style="margin:10px 0 4px 0;">Student Details</h4>
+        <ul id="profileModalStudents" style="padding-left:18px;"></ul>
+      </div>
+      <div class="buttons"><button onclick="closeCoordinatorProfileModal()">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Add Coordinator Modal -->
+  <div id="addCoordinatorModal" class="modal">
+    <div class="modal-content" style="max-width:400px;">
+      <h3>Add Coordinator</h3>
+      <form id="addCoordinatorForm" class="coordinator-inputs" onsubmit="addCoordinator(event)">
+        <input type="email" id="newCoordEmail" placeholder="Email ID" required>
+        <input type="text" id="newCoordUsername" placeholder="User Name" required>
+        <input type="password" id="newCoordPassword" placeholder="Password" required>
+        <button type="submit" class="action-btn">Add</button>
+        <button type="button" class="action-btn" onclick="closeAddCoordinatorModal()" style="background:#888;margin-left:8px;">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Feedback/Application Modal -->
+  <div id="editFeedbackModal" class="modal">
+    <div class="modal-content" style="max-width:600px;">
+      <h3>Edit Application/Feedback</h3>
+      <form id="editFeedbackForm" class="coordinator-inputs" onsubmit="saveFeedbackEdit(event)">
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div style="flex:1; min-width:220px;">
+            <input type="text" id="editAppNo" placeholder="Application No" required readonly>
+            <input type="text" id="editStudentName" placeholder="Student Name (e.g., Alice)" required>
+            <select id="editGender" required>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" id="editAddress" placeholder="Address (e.g., 123 Main St, Chennai)" required>
+          </div>
+          <div style="flex:1; min-width:220px;">
+            <input type="text" id="editQualification" placeholder="Qualification (e.g., B.Sc)" required>
+            <input type="text" id="editGrade" placeholder="Grade (e.g., A+)" required>
+            <input type="tel" id="editMobile" placeholder="Mobile Number (e.g., 9876543210)" required>
+            <input type="tel" id="editParentMobile" placeholder="Parent's Mobile Number (e.g., 9123456789)" required>
+          </div>
+        </div>
+        <input type="text" id="editCoordinatorName" placeholder="Coordinator Name (e.g., John Doe)" required>
+        <textarea id="editFeedback" placeholder="Feedback (e.g., Very helpful and supportive.)" required style="min-height:60px;"></textarea>
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button type="submit" class="action-btn">Save</button>
+          <button type="button" class="action-btn" onclick="closeEditFeedbackModal()" style="background:#888;">Cancel</button>
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:10px;">
+          <strong>Example:</strong><br>
+          Application No: APP1021<br>
+          Student Name: Alice<br>
+          Gender: Female<br>
+          Address: 123 Main St, Chennai<br>
+          Qualification: B.Sc<br>
+          Grade: A+<br>
+          Mobile Number: 9876543210<br>
+          Parent's Mobile Number: 9123456789<br>
+          Coordinator Name: John Doe<br>
+          Feedback: Very helpful and supportive.
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="modal">
+    <div class="modal-content" style="max-width:350px;text-align:center;">
+      <h3>Are you sure?</h3>
+      <p>Do you really want to delete this application?</p>
+      <div style="margin-top:14px;">
+        <button class="action-btn" onclick="confirmDeleteFeedback()">Yes</button>
+        <button class="action-btn" onclick="closeDeleteConfirmModal()" style="background:#888;margin-left:8px;">No</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show Section Function
+    function showSection(section){
+      document.getElementById("dashboardSection").style.display = section==="dashboard" ? "block" : "none";
+      document.getElementById("coordinatorSection").style.display = section==="coordinator" ? "block" : "none";
+      document.getElementById("feedbackSection").style.display = section==="feedback" ? "block" : "none";
+      document.getElementById("viewSection").style.display = section==="view" ? "block" : "none";
+      document.getElementById("profileSection").style.display = section==="profile" ? "block" : "none";
+
+      document.getElementById("dashboardBtn").classList.toggle("active", section==="dashboard");
+      document.getElementById("coordinatorBtn").classList.toggle("active", section==="coordinator");
+      document.getElementById("feedbackBtn").classList.toggle("active", section==="feedback");
+      document.getElementById("viewBtn").classList.toggle("active", section==="view");
+      document.getElementById("profileBtn").classList.toggle("active", section==="profile");
+    }
+    // Show dashboard by default on page load
+    showSection('dashboard');
+
+    // Coordinator Card Data
+    let coordinators = [
+      {
+        email: "john@example.com",
+        username: "John Doe",
+        password: "test123", // In production, never store plain passwords!
+        photo: "https://randomuser.me/api/portraits/men/32.jpg",
+        admissions: 3,
+        students: [
+          { name: "Alice", appId: "APP1021" },
+          { name: "Bob", appId: "APP1022" },
+          { name: "Charlie", appId: "APP1023" }
+        ]
+      },
+      {
+        email: "jane@example.com",
+        username: "Jane Smith",
+        password: "test456",
+        photo: "https://randomuser.me/api/portraits/women/44.jpg",
+        admissions: 2,
+        students: [
+          { name: "David", appId: "APP1024" },
+          { name: "Eva", appId: "APP1025" }
+        ]
+      }
+    ];
+
+    let currentCoordinatorIdx = null;
+
+    function renderCoordinatorGrid() {
+      const grid = document.getElementById("coordinatorGrid");
+      grid.innerHTML = "";
+      coordinators.forEach((c, idx) => {
+        const card = document.createElement("div");
+        card.className = "coordinator-card";
+        card.style = "width:180px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:16px;text-align:center;cursor:pointer;transition:box-shadow 0.2s;position:relative;";
+        card.innerHTML = `
+          <img src="${c.photo}" alt="Profile" style="width:70px;height:70px;border-radius:50%;border:2px solid var(--accent);object-fit:cover;">
+          <div style="margin-top:8px;font-weight:bold;">${c.username}</div>
+          <div style="color:#888;font-size:13px;">${c.email}</div>
+          <button class="action-btn" style="position:absolute;top:8px;right:8px;padding:2px 8px;font-size:13px;" onclick="event.stopPropagation();deleteCoordinator(${idx});">Delete</button>
+        `;
+        card.onclick = () => showCoordinatorProfileModal(idx);
+        grid.appendChild(card);
+      });
+    }
+
+    function showCoordinatorProfileModal(idx) {
+      currentCoordinatorIdx = idx;
+      const c = coordinators[idx];
+      document.getElementById("profileModalPhoto").src = c.photo;
+      document.getElementById("profileModalName").innerText = c.username;
+      document.getElementById("profileModalDept").innerText = c.email;
+      document.getElementById("profileModalAdmissions").innerText = c.admissions;
+      const ul = document.getElementById("profileModalStudents");
+      ul.innerHTML = "";
+      c.students.forEach(s => {
+        const li = document.createElement("li");
+        li.innerText = `${s.name} (App ID: ${s.appId})`;
+        ul.appendChild(li);
+      });
+      document.getElementById("coordinatorProfileModal").classList.add("show");
+    }
+
+    function deleteCoordinator(idx) {
+      if (currentCoordinatorIdx === idx) {
+        closeCoordinatorProfileModal();
+      }
+      coordinators.splice(idx, 1);
+      renderCoordinatorGrid();
+    }
+
+    function closeCoordinatorProfileModal() {
+      document.getElementById("coordinatorProfileModal").classList.remove("show");
+      currentCoordinatorIdx = null;
+    }
+
+    // Add Coordinator
+    function openAddCoordinatorModal() {
+      document.getElementById("addCoordinatorModal").classList.add("show");
+    }
+    function closeAddCoordinatorModal() {
+      document.getElementById("addCoordinatorModal").classList.remove("show");
+    }
+    function addCoordinator(e) {
+      e.preventDefault();
+      const email = document.getElementById("newCoordEmail").value.trim();
+      const username = document.getElementById("newCoordUsername").value.trim();
+      const password = document.getElementById("newCoordPassword").value.trim();
+      if(!email || !username || !password) return;
+      coordinators.push({
+        email,
+        username,
+        password,
+        photo: "https://via.placeholder.com/100",
+        admissions: 0,
+        students: []
+      });
+      renderCoordinatorGrid();
+      closeAddCoordinatorModal();
+      e.target.reset();
+      alert("Coordinator added! They can now log in with their credentials.");
+    }
+
+    // Feedback Data (demo) with all fields
+    let feedbackData = [
+      {
+        appNo: "APP1021",
+        student: "Alice",
+        gender: "Female",
+        address: "123 Main St, Chennai",
+        qualification: "B.Sc",
+        grade: "A+",
+        mobile: "9876543210",
+        parentMobile: "9123456789",
+        coordinator: "John Doe",
+        feedback: "Very helpful and supportive."
+      },
+      {
+        appNo: "APP1022",
+        student: "Bob",
+        gender: "Male",
+        address: "456 Park Ave, Chennai",
+        qualification: "B.Com",
+        grade: "A",
+        mobile: "9876501234",
+        parentMobile: "9123409876",
+        coordinator: "Jane Smith",
+        feedback: "Guided me well through the process."
+      }
+    ];
+
+    let editingFeedbackIdx = null;
+    let deletingFeedbackIdx = null;
+
+    // Render Feedback Table (show only main fields in table)
+    function renderFeedbackTable() {
+      const tbody = document.getElementById("feedbackTable").querySelector("tbody");
+      const search = document.getElementById("feedbackSearch").value.toLowerCase();
+      tbody.innerHTML = "";
+      feedbackData.forEach((f, idx) => {
+        if (
+          f.appNo.toLowerCase().includes(search) ||
+          f.student.toLowerCase().includes(search) ||
+          f.coordinator.toLowerCase().includes(search)
+        ) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${f.appNo}</td>
+            <td>${f.student}</td>
+            <td>${f.coordinator}</td>
+            <td>${f.feedback}</td>
+            <td>
+              <button class="action-btn" onclick="openEditFeedbackModal(${idx})">Edit</button>
+              <button class="action-btn" style="background:#a60000;" onclick="openDeleteConfirmModal(${idx})">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    // Search functionality
+    document.getElementById("feedbackSearch").addEventListener("input", renderFeedbackTable);
+
+    // Edit Feedback (Application) - Show all fields for editing
+    function openEditFeedbackModal(idx) {
+      editingFeedbackIdx = idx;
+      const f = feedbackData[idx];
+      document.getElementById("editAppNo").value = f.appNo || "";
+      document.getElementById("editStudentName").value = f.student || "";
+      document.getElementById("editGender").value = f.gender || "";
+      document.getElementById("editAddress").value = f.address || "";
+      document.getElementById("editQualification").value = f.qualification || "";
+      document.getElementById("editGrade").value = f.grade || "";
+      document.getElementById("editMobile").value = f.mobile || "";
+      document.getElementById("editParentMobile").value = f.parentMobile || "";
+      document.getElementById("editCoordinatorName").value = f.coordinator || "";
+      document.getElementById("editFeedback").value = f.feedback || "";
+      document.getElementById("editFeedbackModal").classList.add("show");
+    }
+
+    function closeEditFeedbackModal() {
+      document.getElementById("editFeedbackModal").classList.remove("show");
+      editingFeedbackIdx = null;
+    }
+
+    // Save Feedback/Application Edit
+    function saveFeedbackEdit(e) {
+      e.preventDefault();
+      if (editingFeedbackIdx !== null) {
+        feedbackData[editingFeedbackIdx] = {
+          appNo: document.getElementById("editAppNo").value,
+          student: document.getElementById("editStudentName").value,
+          gender: document.getElementById("editGender").value,
+          address: document.getElementById("editAddress").value,
+          qualification: document.getElementById("editQualification").value,
+          grade: document.getElementById("editGrade").value,
+          mobile: document.getElementById("editMobile").value,
+          parentMobile: document.getElementById("editParentMobile").value,
+          coordinator: document.getElementById("editCoordinatorName").value,
+          feedback: document.getElementById("editFeedback").value
+        };
+        renderFeedbackTable();
+        closeEditFeedbackModal();
+        alert("Application/Feedback updated!");
+      }
+    }
+
+    // Delete Feedback
+    function openDeleteConfirmModal(idx) {
+      deletingFeedbackIdx = idx;
+      document.getElementById("deleteConfirmModal").classList.add("show");
+    }
+    function closeDeleteConfirmModal() {
+      document.getElementById("deleteConfirmModal").classList.remove("show");
+      deletingFeedbackIdx = null;
+    }
+    function confirmDeleteFeedback() {
+      if (deletingFeedbackIdx !== null) {
+        feedbackData.splice(deletingFeedbackIdx, 1);
+        renderFeedbackTable();
+        closeDeleteConfirmModal();
+        alert("Application deleted!");
+      }
+    }
+
+    // Chart data
+    const admissionsDatasets = {
+      weekly: { labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], data:[5,7,6,10,8,12,9], color:"#007bff" },
+      monthly:{ labels:["Jan","Feb","Mar","Apr","May","Jun","Jul"], data:[20,25,18,30,22,28,35], color:"#28a745" },
+      yearly: { labels:["2019","2020","2021","2022","2023"], data:[150,180,200,220,250], color:"#ffc107" }
+    };
+    const departmentLabels = ["CSE","ECE","EEE","AIDS","AIML","Cyber Security","CSBS"];
+    const pieDataByYear = {"2023":[200,150,90,80,60,40,35]};
+    const deptColors = ["#007bff","#28a745","#ffc107","#dc3545","#17a2b8","#6f42c1","#fd7e14"];
+
+    // Bar Chart
+    const barCtx = document.getElementById("admissionsChart").getContext("2d");
+    let admissionsChart = new Chart(barCtx, {
+      type:"bar",
+      data:{ labels:admissionsDatasets.weekly.labels, datasets:[{label:"Admissions", data:admissionsDatasets.weekly.data, backgroundColor:admissionsDatasets.weekly.color}] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{beginAtZero:true}} }
+    });
+    document.getElementById("graphType").addEventListener("change", updateGraph);
+    function updateGraph(){
+      const type = document.getElementById("graphType").value;
+      const ds = admissionsDatasets[type];
+      admissionsChart.data.labels = ds.labels;
+      admissionsChart.data.datasets[0].data = ds.data;
+      admissionsChart.data.datasets[0].backgroundColor = ds.color;
+      admissionsChart.update();
+      updateAdmissionsTable(); updateCounters();
+    }
+
+    // Pie Chart
+    const pieCtx = document.getElementById("studentsPieChart").getContext("2d");
+    const pieTooltip = document.getElementById("pieTooltip");
+    let studentsPieChart = new Chart(pieCtx, {
+      type:"pie",
+      data:{ labels:departmentLabels, datasets:[{data:pieDataByYear["2023"].slice(), backgroundColor:deptColors, offset: Array(departmentLabels.length).fill(0)}] },
+      options:{responsive:true, maintainAspectRatio:false, plugins:{ tooltip:{ enabled:false } },
+        onHover: (event,elements) => {
+          if(elements && elements.length){
+            const el = elements[0]; const idx = el.index; const ds = studentsPieChart.data.datasets[0];
+            ds.offset = Array(ds.data.length).fill(0); ds.offset[idx] = 14; studentsPieChart.update('none');
+            const rect = studentsPieChart.canvas.getBoundingClientRect();
+            pieTooltip.style.left = Math.min(rect.width-10, event.clientX - rect.left + 14) + "px";
+            pieTooltip.style.top = Math.max(6, event.clientY - rect.top - 10) + "px";
+            pieTooltip.innerHTML = `<strong>${studentsPieChart.data.labels[idx]}</strong>: ${ds.data[idx]} students`;
+            pieTooltip.style.display = "block";
+          } else { const ds = studentsPieChart.data.datasets[0]; ds.offset = Array(ds.data.length).fill(0); studentsPieChart.update('none'); pieTooltip.style.display="none"; }
+        }
+      }
+    });
+    document.getElementById("yearSelect").addEventListener("change", updatePieChart);
+    function updatePieChart(){
+      const year = document.getElementById("yearSelect").value;
+      studentsPieChart.data.datasets[0].data = pieDataByYear[year].slice();
+      studentsPieChart.data.datasets[0].offset = Array(departmentLabels.length).fill(0);
+      pieTooltip.style.display="none"; studentsPieChart.update();
+      updateDeptTable(year);
+      updateCounters();
+    }
+
+    // Tables
+    function updateAdmissionsTable(){
+      const tbody = document.querySelector("#admissionsDataTable tbody"); tbody.innerHTML="";
+      const labels = admissionsChart.data.labels; const vals = admissionsChart.data.datasets[0].data;
+      for(let i=0;i<labels.length;i++){ const tr=document.createElement("tr"); tr.innerHTML=`<td>${labels[i]}</td><td>${vals[i]}</td>`; tbody.appendChild(tr)}
+    }
+    function updateDeptTable(year){
+      const tbody = document.querySelector("#deptDataTable tbody"); tbody.innerHTML="";
+      const arr = pieDataByYear[year];
+      for(let i=0;i<departmentLabels.length;i++){ const tr=document.createElement("tr"); tr.innerHTML=`<td>${departmentLabels[i]}</td><td>${arr[i]}</td>`; tbody.appendChild(tr)}
+    }
+
+    // Counters
+    function updateCounters(){
+      const type = document.getElementById("graphType").value;
+      const admissions = admissionsDatasets[type].data.reduce((a,b)=>a+b,0);
+      const year = document.getElementById("yearSelect").value;
+      const enrollments = pieDataByYear[year].reduce((a,b)=>a+b,0);
+      document.getElementById("admissionsCount").innerText=admissions;
+      document.getElementById("enrollmentsCount").innerText=enrollments;
+    }
+
+    // Initialize
+    renderCoordinatorGrid();
+    renderFeedbackTable();
+    updateAdmissionsTable(); updateDeptTable("2023"); updateCounters();
+
+    // Notifications
+    function toggleNotifications(){
+      const popup = document.getElementById("notifPopup");
+      popup.style.display = popup.style.display==="block"?"none":"block";
+    }
+
+    // Set date beside Today’s Data and Yesterday’s Data
+    function pad(n){return n<10?'0'+n:n;}
+    function formatDate(dt){
+      return pad(dt.getDate())+'-'+pad(dt.getMonth()+1)+'-'+dt.getFullYear()+':'+
+             pad(dt.getHours())+':'+pad(dt.getMinutes());
+    }
+    const now = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate()-1);
+    document.getElementById("todayDate").textContent = formatDate(now);
+    document.getElementById("yesterdayDate").textContent = formatDate(yesterday);
+
+    document.getElementById("profilePhotoInput").addEventListener("change", function(){
+      if(this.files && this.files[0]){
+        const reader = new FileReader();
+        reader.onload = function(e){
+          document.getElementById("profilePhotoPreview").src = e.target.result;
+          document.getElementById("dashboardPhoto").src = e.target.result; // update dashboard photo too
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    document.getElementById("adminProfileForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      // Update dashboard info with profile info
+      document.getElementById("dashboardName").innerText = document.getElementById("profileName").value;
+      document.getElementById("dashboardEmail").innerText = document.getElementById("profileEmail").value;
+      document.getElementById("dashboardPhone").innerText = document.getElementById("profilePhone").value;
+      document.getElementById("dashboardRole").innerText = document.getElementById("profileRole").value;
+      alert("Profile updated successfully!");
+      
+    });
+  </script>
+</body>
+</html>

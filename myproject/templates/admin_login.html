@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Prathyusha Engineering College</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: url("/static/homepage.jpg") no-repeat center center/cover;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: #a60000;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      border-radius: 0 0 8px 8px;
+      z-index: 100;
+    }
+    .header img {
+      height: 55px;
+      width: 55px;
+      margin-right: 15px;
+    }
+    .header .title {
+      text-align: center;
+    }
+    .container {
+      margin-top: 140px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 20px;
+    }
+    .form-section {
+      width: 320px; /* reduced card width */
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .form-section:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .form-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group label {
+      display: block;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+    }
+    .sign-in-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 5px;
+      background: #e74c3c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .sign-in-btn:hover {
+      background: #c0392b;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+      .form-section {
+        width: 90%;
+      }
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+      .header img {
+        margin: 0 0 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <img src="/static/hlogo.jpg" alt="College Logo">
+    <div class="title">
+      <h1>PRATHYUSHA ENGINEERING COLLEGE</h1>
+      <p><i>An Autonomous Institution</i></p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="form-section">
+      <h2>Admin Login</h2>
+      <form method="POST" action="/admin_login">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" required>
+        </div>
+        <button type="submit" class="sign-in-btn">Sign In</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

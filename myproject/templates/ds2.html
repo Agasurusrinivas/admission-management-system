@@ -1,0 +1,440 @@
+add the above code logic to the below code 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prathyusha Engineering College - Admission & Advance Booking Forms</title>
+<style>
+body {
+  font-family: "Times New Roman", serif;
+  margin: 20px;
+  background: white;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+th, td {
+  border: 1px solid black;
+  padding: 6px;
+  vertical-align: top;
+  text-align: left;
+}
+input, textarea, select {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  background: transparent;
+}
+.header-table {
+  border: 1px solid black;
+  margin-bottom: 10px;
+}
+.header-logo {
+  width: 150px;
+  text-align: center;
+  border-right: 2px solid black;
+}
+.header-logo img {
+  width: 120px;
+  height: 120px;
+}
+.header-text {
+  text-align: left;
+  font-size: 15px;
+  padding-left: 10px;
+}
+.header-text hr {
+  border: 1px solid black;
+  margin: 8px 0;
+}
+.title {
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  margin: 20px 0 10px 0;
+  text-transform: uppercase;
+}
+.section-title {
+  font-weight: bold;
+  background: #f2f2f2;
+}
+.btn {
+  margin: 20px 0;
+  padding: 12px 20px;
+  background: darkred;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn:hover { background: red; }
+@media print {
+  .btn { display: none; }
+  input, textarea, select { border: none; }
+  input[type="file"] { display: none; }
+}
+hr.divider {
+  border: 2px dashed black;
+  margin: 40px 0;
+}
+img.preview {
+  max-width: 120px;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+
+<!-- ================== ADMISSION REGISTRATION FORM ================== -->
+<table class="header-table">
+<tr>
+  <td class="header-logo"><img src="/static/hlogo.jpg" alt="College Logo"></td>
+  <td class="header-text">
+    <h2>PRATHYUSHA ENGINEERING COLLEGE</h2>
+    <h3>B.E / B.Tech Degree Admission 2025-26</h3>
+    <p>(CSE / ECE / EEE / CYB SEC / MECH / IT / AI&DS / AIML / BIOTECH / CSBS)</p>
+    <hr>
+    <table style="width:100%; border:none;">
+      <tr>
+        <td style="border:none;">
+          <b>How do you know PEC?</b>
+          <select id="knowPEC">
+            <option value="">-- Select --</option>
+            <option>Friends</option>
+            <option>Students</option>
+            <option>Alumni</option>
+            <option>Parents</option>
+            <option>Facebook</option>
+            <option>YouTube</option>
+            <option>Others</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td style="border:none;"><b>Reference Name / Contact Details:</b> <input type="text" id="refDetails"></td>
+        <td style="border:none;"><b>Admission Staff Follow-up Details:</b> <input type="text" id="staffFollow"></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<p class="title">ADMISSION REGISTRATION FORM</p>
+
+<!-- Candidate Details -->
+<table>
+<tr><td>Name of the Candidate</td><td colspan="3"><input type="text" id="candName"></td></tr>
+<tr><td>Preferred Branch</td><td colspan="3"><input type="text" id="prefBranch"></td></tr>
+<tr><td>Father / Guardian Name</td><td colspan="3"><input type="text" id="fatherName"></td></tr>
+<tr><td>Address</td><td colspan="3"><textarea rows="3" id="address"></textarea></td></tr>
+<tr><td>Boarding Point / Hostel Option</td><td colspan="3"><input type="text" id="hostelOption"></td></tr>
+<tr><td>Mobile No</td><td><input type="text" id="mobileNo"></td><td>Occupation</td><td><input type="text" id="occupation"></td></tr>
+<tr><td>Date of Birth</td><td><input type="date" id="dob"></td><td>Gender</td><td><input type="text" id="gender"></td></tr>
+<tr><td>Community</td><td><input type="text" id="community"></td><td>Aadhaar No</td><td><input type="text" id="aadhaar"></td></tr>
+</table>
+
+<!-- Academic Details -->
+<h3>Academic Details</h3>
+<table>
+<tr><th>10th Standard</th><th>Details</th><th>12th Standard</th><th>Details</th></tr>
+<tr><td>School Name</td><td><input type="text" id="school10"></td><td>School / Junior College</td><td><input type="text" id="school12"></td></tr>
+<tr><td>Board / Medium</td><td><input type="text" id="board10"></td><td>Medium of Study</td><td><input type="text" id="medium12"></td></tr>
+<tr><td>Total Marks</td><td><input type="text" id="marks10"></td><td>Total Marks</td><td><input type="text" id="marks12"></td></tr>
+<tr><td>First Graduate</td><td><select id="firstGrad"><option>Yes</option><option>No</option></select></td><td>School Place</td><td><input type="text" id="schoolPlace"></td></tr>
+<tr><td></td><td></td><td>Exam Reg. No.</td><td><input type="text" id="examReg"></td></tr>
+</table>
+
+<!-- Cut-off Marks -->
+<h3>Cut-off Marks</h3>
+<table>
+<tr><th>Subject</th><th>Marks</th></tr>
+<tr><td>Mathematics</td><td><input type="text" id="mathMarks"></td></tr>
+<tr><td>Physics</td><td><input type="text" id="physicsMarks"></td></tr>
+<tr><td>Chemistry</td><td><input type="text" id="chemMarks"></td></tr>
+<tr><td>Fourth Subject</td><td><input type="text" id="fourthMarks"></td></tr>
+</table>
+
+<!-- Fee Details -->
+<h3>Fee Details</h3>
+<table>
+<tr><td>Tuition Fees (MQ)</td><td>₹1,50,000</td><td>Tuition Fees (GQ)</td><td>₹94,000</td></tr>
+<tr><td>Meals - Breakfast</td><td>₹9,500</td><td>Meals - Lunch</td><td>₹26,600</td></tr>
+<tr><td>Hostel</td><td colspan="3">₹1,10,000</td></tr>
+<tr><td>Transport</td><td colspan="3">₹24,500 to ₹44,000</td></tr>
+<tr><td>Advance Booking Fee</td><td colspan="3">₹25,000 <b>(Non-refundable)</b></td></tr>
+</table>
+
+<!-- Siblings Details -->
+<h3>Siblings Details</h3>
+<table>
+<tr class="section-title"><th>Name</th><th>Class/Year</th><th>School/College</th></tr>
+<tr><td><input type="text" id="sib1Name"></td><td><input type="text" id="sib1Class"></td><td><input type="text" id="sib1School"></td></tr>
+<tr><td><input type="text" id="sib2Name"></td><td><input type="text" id="sib2Class"></td><td><input type="text" id="sib2School"></td></tr>
+</table>
+
+<!-- Signatures -->
+<h3>Signatures</h3>
+<table>
+<tr class="section-title"><th>Parent Signature</th><th>Accounts Office</th><th>Admission Coordinator</th></tr>
+<tr>
+<td><input type="file" accept="image/*" id="parentSign"></td>
+<td><input type="file" accept="image/*" id="accountsSign"></td>
+<td><input type="file" accept="image/*" id="admissionSign"></td>
+</tr>
+</table>
+
+<!-- Office Use Only -->
+<h3>Office Use Only</h3>
+<table>
+<tr><td>Final Branch:</td><td><input type="text" id="finalBranch"></td></tr>
+<tr><td>Final Quota/Admission No:</td><td><input type="text" id="finalQuota"></td></tr>
+<tr><td>Booking to GQ Admission No:</td><td><input type="text" id="bookingGQ"></td></tr>
+<tr><td>Final Total Fees Rs:</td><td><input type="text" id="finalFees"></td></tr>
+<tr><td>Advance Paid Rs:</td><td><input type="text" id="advancePaid"></td></tr>
+<tr><td>Scholarship Rs:</td><td><input type="text" id="scholarship"></td></tr>
+</table>
+
+<div style="text-align:center;">
+<button class="btn" onclick="window.print()">Download Admission Form (PDF)</button>
+<button class="btn" id="saveBtn">Save Application</button>
+</div>
+
+<hr class="divider">
+
+<!-- ================== ADVANCE BOOKING FORM ================== -->
+<h2 style="text-align:center;">ADVANCE BOOKING FORM</h2>
+
+<table>
+<tr><td>Application No:</td><td><input type="text" id="advAppNo"></td><td>Date:</td><td><input type="text" id="advDate"></td></tr>
+</table>
+
+<table>
+<tr class="section-title"><td colspan="4">Student Information</td></tr>
+<tr><td>Name</td><td><input type="text" id="advName"></td><td>Father Name</td><td><input type="text" id="advFather"></td></tr>
+<tr><td>Booking Branch</td><td><input type="text" id="advBranch"></td><td>Applied for TNEA</td><td><input type="text" id="advTNEA"></td></tr>
+<tr><td>Remarks</td><td colspan="3"><textarea rows="2" id="advRemarks"></textarea></td></tr>
+<tr><td>Student Photo</td><td colspan="3"><input type="file" accept="image/*" id="advPhoto"></td></tr>
+</table>
+
+<table>
+<tr class="section-title"><td colspan="4">Fees Details</td></tr>
+<tr><th>Particulars</th><th>GQ Fees</th><th>MQ Fees</th><th>Remarks</th></tr>
+<tr><td>Tuition Fees</td><td><input type="text" id="advGQFees" value="94,000"></td><td><input type="text" id="advMQFees" value="1,50,000"></td><td>Advance Booking ₹25,000 Non-Refundable</td></tr>
+<tr><td>Hostel Fees</td><td><input type="text" id="advHostelGQ"></td><td><input type="text" id="advHostelMQ"></td><td><input type="text" id="advHostelRemarks"></td></tr>
+<tr><td>Transport Fees</td><td><input type="text" id="advTransportGQ"></td><td><input type="text" id="advTransportMQ"></td><td><input type="text" id="advTransportRemarks"></td></tr>
+<tr><td>Mess Fees - Breakfast</td><td><input type="text" id="advMessBGQ"></td><td><input type="text" id="advMessBMQ"></td><td><input type="text" id="advMessBRemarks"></td></tr>
+<tr><td>Mess Fees - Lunch</td><td><input type="text" id="advMessLGQ"></td><td><input type="text" id="advMessLMQ"></td><td><input type="text" id="advMessLRemarks"></td></tr>
+<tr><td>Book Fees</td><td><input type="text" id="advBookGQ"></td><td><input type="text" id="advBookMQ"></td><td><input type="text" id="advBookRemarks"></td></tr>
+<tr><td>Total</td><td><input type="text" id="advTotalGQ"></td><td><input type="text" id="advTotalMQ"></td><td><input type="text" id="advTotalRemarks"></td></tr>
+<tr><td>*Govt. Scholarship/FG/PMS</td><td><input type="text" id="advScholarGQ"></td><td><input type="text" id="advScholarMQ"></td><td><input type="text" id="advScholarRemarks"></td></tr>
+</table>
+
+<table>
+<tr class="section-title"><td colspan="2">Important Dates / Remarks</td></tr>
+<tr><td>Last Date for Full Fee Payment</td><td><input type="text" id="advFullFeeDate"></td></tr>
+<tr><td>Last Date for Certificate Submission</td><td><input type="text" id="advCertDate"></td></tr>
+<tr><td>Last Date for Admission</td><td><input type="text" id="advAdmissionDate"></td></tr>
+</table>
+<h4>*Scholarship certificate must be submitted before reopening date.</h4>
+<h4>**Subject to change after result</h4>
+
+<table>
+<tr class="section-title"><td colspan="4">Siblings Details</td></tr>
+<tr><th>Name</th><th>Class/Year</th><th>School/College</th></tr>
+<tr><td><input type="text" id="advSib1Name"></td><td><input type="text" id="advSib1Class"></td><td><input type="text" id="advSib1School"></td></tr>
+<tr><td><input type="text" id="advSib2Name"></td><td><input type="text" id="advSib2Class"></td><td><input type="text" id="advSib2School"></td></tr>
+</table>
+
+<h3>Signatures</h3>
+<table>
+<tr class="section-title"><td colspan="3">Signatures</td></tr>
+<tr><th>Parent Signature</th><th>Accounts Office</th><th>Admission Coordinator</th></tr>
+<tr>
+<td><input type="file" accept="image/*" id="advParentSign"></td>
+<td><input type="file" accept="image/*" id="advAccountsSign"></td>
+<td><input type="file" accept="image/*" id="advAdmissionSign"></td>
+</tr>
+</table>
+
+<table>
+<tr class="section-title"><td colspan="2">Office Use Only</td></tr>
+<tr><td>Final Branch:</td><td><input type="text" id="advFinalBranch"></td></tr>
+<tr><td>Final Quota/Admission No:</td><td><input type="text" id="advFinalQuota"></td></tr>
+<tr><td>Booking to GQ Admission No:</td><td><input type="text" id="advBookingGQ"></td></tr>
+<tr><td>Final Total Fees Rs:</td><td><input type="text" id="advFinalFees"></td></tr>
+<tr><td>Advance Paid Rs:</td><td><input type="text" id="advAdvancePaid"></td></tr>
+<tr><td>Scholarship Rs:</td><td><input type="text" id="advScholarship"></td></tr>
+</table>
+
+<div style="text-align:center;">
+<button class="btn" onclick="window.print()">Download Advance Booking Form (PDF)</button>
+<button class="btn" id="saveBtnAdvance">Save Application</button>
+<div style="text-align:center;">
+  <button class="btn" type="button" onclick="handleExit()">Exit / Go Back</button>
+
+</div>
+
+</div>
+
+<hr class="divider">
+
+<script>
+// ================= SCRIPT =================
+
+// ========== Application State ============
+// Generate or retrieve application number
+const applicationNumber = "PEC" + Math.floor(1000 + Math.random() * 9000);
+
+// ========== Set the page ================
+document.querySelector('.title').innerText = `ADMISSION REGISTRATION FORM - Application No: ${applicationNumber}`;
+document.getElementById('advAppNo').value = applicationNumber;
+document.getElementById('advDate').value = new Date().toLocaleDateString('en-CA');
+
+// Auto set today's date
+document.getElementById("dob").value = new Date().toISOString().split('T')[0];
+
+// ============= Safe Exit/Delete Reserved ==============
+window.addEventListener('beforeunload', function (e) {
+    // Only clear storage & delete reserved if not saved
+    if (localStorage.getItem('appSaved_' + applicationNumber) !== '1') {
+        // Try deleting reserved backend on close
+        navigator.sendBeacon('/delete_reserved_application', JSON.stringify({ application_number: applicationNumber }));
+        localStorage.clear();
+    }
+});
+
+// Handle Exit button with backend delete for reserved
+function handleExit() {
+    if (localStorage.getItem('appSaved_' + applicationNumber) !== '1') {
+        fetch('/delete_reserved_application', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ application_number: applicationNumber })
+        }).then(res => {
+            window.history.back();
+        }).catch(() => window.history.back());
+    } else {
+        window.history.back();
+    }
+}
+
+// ============= Image Preview Save =============
+function setupFilePreview(fileInput) {
+    fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let img = fileInput.nextElementSibling;
+            if (!img || img.tagName !== 'IMG') {
+                img = document.createElement('img');
+                img.classList.add('preview');
+                fileInput.parentElement.appendChild(img);
+            }
+            img.src = e.target.result;
+            localStorage.setItem(fileInput.id, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Load saved image
+    const saved = localStorage.getItem(fileInput.id);
+    if (saved) {
+        let img = document.createElement('img');
+        img.classList.add('preview');
+        img.src = saved;
+        fileInput.parentElement.appendChild(img);
+    }
+}
+document.querySelectorAll('input[type="file"]').forEach(setupFilePreview);
+
+// ============= Save Form Data ===============
+function saveFormData() {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type === 'file') return;
+        localStorage.setItem(el.id, el.value);
+    });
+    // Set application as saved
+    localStorage.setItem('appSaved_' + applicationNumber, '1');
+    alert('Application data saved successfully!');
+}
+document.getElementById('saveBtn').addEventListener('click', saveFormData);
+document.getElementById('saveBtnAdvance').addEventListener('click', saveFormData);
+
+// ============= Load Saved Data ===============
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type === 'file') return;
+        const val = localStorage.getItem(el.id);
+        if (val) el.value = val;
+    });
+});
+
+// ============= Modify print buttons ===========
+document.querySelectorAll('button.btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        if (btn.id.includes("save") || btn.id === "exitBtn") return; 
+
+        const filename = btn.innerText.includes("Admission")
+            ? `AdmissionForm_${applicationNumber}.pdf`
+            : `AdvanceBookingForm_${applicationNumber}.pdf`;
+    });
+});
+
+// =========== Input Validation ================
+const textFields = [
+    'candName', 'prefBranch', 'fatherName', 'address', 'hostelOption',
+    'occupation', 'gender', 'community', 'school10', 'school12',
+    'board10', 'medium12', 'schoolPlace', 'advName', 'advFather',
+    'advBranch', 'advTNEA', 'advRemarks', 'advHostelRemarks', 'advTransportRemarks',
+    'advMessBRemarks', 'advMessLRemarks', 'advBookRemarks', 'advTotalRemarks',
+    'advScholarRemarks', 'advSib1Name', 'advSib2Name', 'sib1Name', 'sib2Name',
+    'sib1School', 'sib2School', 'advSib1School', 'advSib2School'
+];
+
+const numberFields = [
+    'mobileNo', 'aadhaar', 'marks10', 'marks12', 'mathMarks', 'physicsMarks',
+    'chemMarks', 'fourthMarks', 'examReg', 'advGQFees', 'advMQFees',
+    'advHostelGQ', 'advHostelMQ', 'advTransportGQ', 'advTransportMQ',
+    'advMessBGQ', 'advMessBMQ', 'advMessLGQ', 'advMessLMQ', 'advBookGQ', 'advBookMQ',
+    'advTotalGQ', 'advTotalMQ', 'advScholarGQ', 'advScholarMQ', 'finalFees', 'advancePaid', 'scholarship',
+    'advFinalFees', 'advAdvancePaid', 'advScholarship'
+];
+
+// Allow only letters in text fields
+textFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', function () {
+            const valid = this.value.replace(/[0-9]/g, '');
+            if (valid !== this.value) {
+                alert('Please fill with text only');
+                this.value = valid;
+            }
+        });
+    }
+});
+
+// Allow only numbers in number fields
+numberFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('input', function () {
+            const valid = this.value.replace(/[^0-9]/g, '');
+            if (valid !== this.value) {
+                alert('Please fill with numbers only');
+                this.value = valid;
+            }
+        });
+    }
+});
+
+</script>
+</body>
+</html>  

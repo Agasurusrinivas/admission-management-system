@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinator Login - Prathyusha Engineering College</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background: url("/static/homepage.jpg") no-repeat center center/cover;
+      padding: 20px;
+      color: white;
+    }
+
+    .header {
+      position: absolute;
+      top: 0;
+      background-color: #a60000;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 10px 450px;
+      width: 110%;
+      border-radius: 5px;
+    }
+
+    .header img {
+      height: 60px;
+      width: 60px;
+    }
+
+    .header .title {
+      flex: 1;
+      text-align: center;
+    }
+
+    .container {
+      position: absolute;
+      top: 150px;
+      width: 400px;
+      padding: 20px;
+    }
+
+    .form-section {
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 30px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .form-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+    }
+
+    .toggle-link {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #00bfff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .success-message {
+      color: green;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* --------------------------------------------- */
+    /* --- Gradient Button Styles (From Demo) --- */
+    /* --------------------------------------------- */
+
+    @property --pos-x {
+      syntax: '<percentage>';
+      initial-value: 11.14%;
+      inherits: false;
+    }
+
+    @property --pos-y {
+      syntax: '<percentage>';
+      initial-value: 140%;
+      inherits: false;
+    }
+
+    @property --spread-x {
+      syntax: '<percentage>';
+      initial-value: 150%;
+      inherits: false;
+    }
+
+    @property --spread-y {
+      syntax: '<percentage>';
+      initial-value: 180.06%;
+      inherits: false;
+    }
+
+    @property --color-1 {
+      syntax: '<color>';
+      initial-value: #000;
+      inherits: false;
+    }
+
+    @property --color-2 {
+      syntax: '<color>';
+      initial-value: #08012c;
+      inherits: false;
+    }
+
+    @property --color-3 {
+      syntax: '<color>';
+      initial-value: #4e1e40;
+      inherits: false;
+    }
+
+    @property --color-4 {
+      syntax: '<color>';
+      initial-value: #70464e;
+      inherits: false;
+    }
+
+    @property --color-5 {
+      syntax: '<color>';
+      initial-value: #88394c;
+      inherits: false;
+    }
+
+    @property --border-angle {
+      syntax: '<angle>';
+      initial-value: 20deg;
+      inherits: true;
+    }
+
+    @property --border-color-1 {
+      syntax: '<color>';
+      initial-value: hsla(340, 75%, 60%, 0.2);
+      inherits: true;
+    }
+
+    @property --border-color-2 {
+      syntax: '<color>';
+      initial-value: hsla(340, 75%, 40%, 0.75);
+      inherits: true;
+    }
+
+    @property --stop-1 {
+      syntax: '<percentage>';
+      initial-value: 37.35%;
+      inherits: false;
+    }
+
+    @property --stop-2 {
+      syntax: '<percentage>';
+      initial-value: 61.36%;
+      inherits: false;
+    }
+
+    @property --stop-3 {
+      syntax: '<percentage>';
+      initial-value: 78.42%;
+      inherits: false;
+    }
+
+    @property --stop-4 {
+      syntax: '<percentage>';
+      initial-value: 89.52%;
+      inherits: false;
+    }
+
+    @property --stop-5 {
+      syntax: '<percentage>';
+      initial-value: 100%;
+      inherits: false;
+    }
+
+    .gradient-button {
+      position: relative;
+      appearance: none;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      border-radius: 11px;
+      min-width: 132px;
+      padding: 12px;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: radial-gradient(
+        var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+        var(--color-1) var(--stop-1),
+        var(--color-2) var(--stop-2),
+        var(--color-3) var(--stop-3),
+        var(--color-4) var(--stop-4),
+        var(--color-5) var(--stop-5)
+      );
+      transition:
+        --pos-x 0.5s,
+        --pos-y 0.5s,
+        --spread-x 0.5s,
+        --spread-y 0.5s,
+        --color-1 0.5s,
+        --color-2 0.5s,
+        --color-3 0.5s,
+        --color-4 0.5s,
+        --color-5 0.5s,
+        --border-angle 0.5s,
+        --border-color-1 0.5s,
+        --border-color-2 0.5s,
+        --stop-1 0.5s,
+        --stop-2 0.5s,
+        --stop-3 0.5s,
+        --stop-4 0.5s,
+        --stop-5 0.5s;
+    }
+
+    .gradient-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(
+        var(--border-angle),
+        var(--border-color-1),
+        var(--border-color-2)
+      );
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .gradient-button:hover {
+      --pos-x: 0%;
+      --pos-y: 91.51%;
+      --spread-x: 120.24%;
+      --spread-y: 103.18%;
+      --color-1: #c96287;
+      --color-2: #c66c64;
+      --color-3: #cc7d23;
+      --color-4: #37140a;
+      --color-5: #000;
+      --border-angle: 190deg;
+      --border-color-1: hsla(340, 78%, 90%, 0.1);
+      --border-color-2: hsla(340, 75%, 90%, 0.6);
+      --stop-1: 0%;
+      --stop-2: 8.8%;
+      --stop-3: 21.44%;
+      --stop-4: 71.34%;
+      --stop-5: 85.76%;
+    }
+
+    .gradient-button-variant {
+      --color-1: #000022;
+      --color-2: #1f3f6d;
+      --color-3: #469396;
+      --color-4: #f1ffa5;
+      --border-angle: 200deg;
+      --border-color-1: hsla(320, 75%, 90%, 0.6);
+      --border-color-2: hsla(320, 50%, 90%, 0.15);
+    }
+
+    .gradient-button-variant:hover {
+      --pos-x: 0%;
+      --pos-y: 95.51%;
+      --spread-x: 110.24%;
+      --spread-y: 110.2%;
+      --color-1: #000020;
+      --color-2: #f1ffa5;
+      --color-3: #469396;
+      --color-4: #1f3f6d;
+      --color-5: #000;
+      --stop-1: 0%;
+      --stop-2: 10%;
+      --stop-3: 35.44%;
+      --stop-4: 71.34%;
+      --stop-5: 90.76%;
+      --border-angle: 210deg;
+      --border-color-1: hsla(320, 75%, 90%, 0.2);
+      --border-color-2: hsla(320, 50%, 90%, 0.75);
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <img src="/static/hlogo.jpg" alt="Logo" />
+    <div class="title">
+      <h1>PRATHYUSHA ENGINEERING COLLEGE</h1>
+      <p>An Autonomous Institution</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Login Section -->
+    <div class="form-section active" id="login-section">
+      <h2>Coordinator Login</h2>
+      {% if success %}
+      <p class="success-message">{{ success }}</p>
+      {% endif %}
+      <form method="POST" action="/coordinator_login">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" name="email" required />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" required />
+        </div>
+        <button type="submit" class="gradient-button">Sign In</button>
+      </form>
+      <span class="toggle-link" onclick="showSignup()">don’t have an account? Create account</span>
+    </div>
+
+    <!-- Signup Section -->
+    <div class="form-section" id="signup-section">
+      <h2>Sign Up</h2>
+      <form method="POST" action="/coordinator_signup">
+        <div class="input-group"><label>First Name</label><input type="text" name="first_name" required></div>
+        <div class="input-group"><label>Last Name</label><input type="text" name="last_name" required></div>
+        <div class="input-group"><label>Email</label><input type="email" name="email" required></div>
+        <div class="input-group"><label>Phone</label><input type="tel" name="phone" required></div>
+        <div class="input-group"><label>Password</label><input type="password" name="password" required></div>
+        <button type="submit" class="gradient-button gradient-button-variant">Create Account</button>
+      </form>
+      <span class="toggle-link" onclick="showLogin()">Already have an account? Sign in</span>
+    </div>
+  </div>
+
+  <script>
+    function showSignup() {
+      document.getElementById("login-section").classList.remove("active");
+      document.getElementById("signup-section").classList.add("active");
+    }
+    function showLogin() {
+      document.getElementById("signup-section").classList.remove("active");
+      document.getElementById("login-section").classList.add("active");
+    }
+  </script>
+</body>
+</html>
